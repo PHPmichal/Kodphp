@@ -15,8 +15,8 @@ const routes: Routes = [
       {path: '' , component: HomeComponent}
     ]
   },
-  {path: 'statystyki' , component: StatystykiComponent},
-  {path: 'ustawienia' , component: UstawieniaComponent},
+  {path: 'statystyki' , component: StatysticComponent},
+  {path: 'ustawienia' , component: SettingComponent},
   {path: '**' , component: HomeComponent}
 ];
 

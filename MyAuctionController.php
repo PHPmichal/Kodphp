@@ -52,12 +52,12 @@ class MyAuctionController extends Controller
         $deleteForm = $this->createFormBuilder()
             ->setAction($this->generateUrl("my_auction_delete", ["id" => $auction->getId()]))
             ->setMethod(Request::METHOD_DELETE)
-            ->add("submit", SubmitType::class, ["label" => "Usuń"])
+            ->add("submit", SubmitType::class, ["label" => "Delete"])
             ->getForm();
 
         $finishForm = $this->createFormBuilder()
             ->setAction($this->generateUrl("my_auction_finish", ["id" => $auction->getId()]))
-            ->add("submit", SubmitType::class, ["label" => "Zakończ"])
+            ->add("submit", SubmitType::class, ["label" => "Finish"])
             ->getForm();
 
         return $this->render(
@@ -89,7 +89,7 @@ class MyAuctionController extends Controller
             $form->handleRequest($request);
 
             if ($auction->getStartingPrice() >= $auction->getPrice()) {
-                $form->get("startingPrice")->addError(new FormError("Cena wywoławcza nie może być wyższa od ceny kup teraz"));
+                $form->get("startingPrice")->addError(new FormError("the price of the caller must be less than buy now"));
             }
 
             if ($form->isValid()) {
@@ -103,12 +103,12 @@ class MyAuctionController extends Controller
 
                 $this->get("event_dispatcher")->dispatch(Events::AUCTION_ADD, new AuctionEvent($auction));
 
-                $this->addFlash("success", "Aukcja {$auction->getTitle()} została dodana.");
+                $this->addFlash("success", "Auction {$auction->getTitle()} is added.");
 
                 return $this->redirectToRoute("my_auction_details", ["id" => $auction->getId()]);
             }
 
-            $this->addFlash("error", "Nie udało się dodać aukcji!");
+            $this->addFlash("error", "an error occured!");
         }
 
         return $this->render("MyAuction/add.html.twig", ["form" => $form->createView()]);
@@ -141,7 +141,7 @@ class MyAuctionController extends Controller
 
             $this->get("event_dispatcher")->dispatch(Events::AUCTION_EDIT, new AuctionEvent($auction));
 
-            $this->addFlash("success", "Aukcja {$auction->getTitle()} została zaktualizowana");
+            $this->addFlash("success", "Auction {$auction->getTitle()} is realised");
 
             return $this->redirectToRoute("my_auction_details", ["id" => $auction->getId()]);
         }
@@ -170,7 +170,7 @@ class MyAuctionController extends Controller
 
         $this->get("event_dispatcher")->dispatch(Events::AUCTION_DELETE, new AuctionEvent($auction));
 
-        $this->addFlash("success", "Aukcja {$auction->getTitle()} została usunięta");
+        $this->addFlash("success", "Auction {$auction->getTitle()} is delete");
 
         return $this->redirectToRoute("my_auction_index");
     }
@@ -200,7 +200,7 @@ class MyAuctionController extends Controller
 
         $this->get("event_dispatcher")->dispatch(Events::AUCTION_FINISH, new AuctionEvent($auction));
 
-        $this->addFlash("success", "Aukcja {$auction->getTitle()} została zakończona");
+        $this->addFlash("success", "Auction {$auction->getTitle()} is finish");
 
         return $this->redirectToRoute("my_auction_details", ["id" => $auction->getId()]);
     }

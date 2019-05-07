@@ -17,16 +17,16 @@ class AuctionType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add("title", TextType::class, ['label' => "Tytuł"])
-            ->add("description", TextareaType::class, ["label" => "Opis"])
-            ->add("price", NumberType::class, ["label" => "Cena"])
-            ->add("startingPrice", NumberType::class, ["label" => "Cena wywoławcza"])
+            ->add("title", TextType::class, ['label' => "Title"])
+            ->add("description", TextareaType::class, ["label" => "Description"])
+            ->add("price", NumberType::class, ["label" => "Price"])
+            ->add("startingPrice", NumberType::class, ["label" => "Starting price"])
             ->add(
                 "expiresAt",
                 DateTimeType::class,
-                ["label" => "Data zakończenia", "data" => new \DateTime("+1 day + 10 minutes")]
+                ["label" => "End Date", "data" => new \DateTime("+1 day + 10 minutes")]
             )
-            ->add("submit", SubmitType::class, ["label" => "Zapisz"]);
+            ->add("submit", SubmitType::class, ["label" => "Save"]);
     }
 
     public function configureOptions(OptionsResolver $resolver)

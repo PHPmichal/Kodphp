@@ -12,12 +12,12 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class AuctionType extends AbstractType
+class AuctionType extends AbstractType // klasa odpowiada za przesłanie formularzy do html
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options) // formularze umorzliwiaja dodawanie produktów lub edytowanie
     {
         $builder
-            ->add("title", TextType::class, ['label' => "Tytuł"])
+            ->add("title", TextType::class, ['label' => "Tytuł"]) 
             ->add("description", TextareaType::class, ["label" => "Opis"])
             ->add("price", NumberType::class, ["label" => "Cena"])
             ->add("startingPrice", NumberType::class, ["label" => "Cena wywoławcza"])

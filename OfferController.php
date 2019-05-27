@@ -1,5 +1,5 @@
 <?php
-
+//obsługa kupna i licytowania danych aukcji prze innych userów
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Auction;
@@ -18,9 +18,9 @@ class OfferController extends Controller
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function buyAction(Auction $auction)
+    public function buyAction(Auction $auction) // tu kupujemy dany produkt na stronie
     {
-        $this->denyAccessUnlessGranted("ROLE_USER");
+        $this->denyAccessUnlessGranted("ROLE_USER"); // oczywiście user musi być zalogowany aby kupić
 
         $offer = new Offer();
         $offer
@@ -50,9 +50,9 @@ class OfferController extends Controller
      *
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function bidAction(Request $request, Auction $auction)
+    public function bidAction(Request $request, Auction $auction)  // licytacja danej aukcji przez usera
     {
-        $this->denyAccessUnlessGranted("ROLE_USER");
+        $this->denyAccessUnlessGranted("ROLE_USER"); // sprawdzamy czy jest zalogowany
 
         $offer = new Offer();
         $bidForm = $this->createForm(BidType::class, $offer);

@@ -1,5 +1,5 @@
 <?php
-
+//Jest to nasz kontroler auckcji odpowiadający za początkową witryne,szczegóły aukcji
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Auction;
@@ -19,8 +19,9 @@ class AuctionController extends Controller
      */
     public function indexAction()
     {
-        $entityManager = $this->getDoctrine()->getManager();
-        $auctions = $entityManager->getRepository(Auction::class)->findActiveOrdered();
+        $entityManager = $this->getDoctrine()->getManager();//entity manager umożliwia połaczenie za bazą danych
+        $auctions = $entityManager->getRepository(Auction::class)->findActiveOrdered();//łączebie z bazą MySql , tabela Auction
+                                                                                       //Pobieranie z nich tylko aktywnych aukcji
 
         $logger = $this->get("logger");
         $logger->info("uzytkownik wszedł na akcję index");
@@ -29,7 +30,9 @@ class AuctionController extends Controller
 
         $logger->info("aktualny dzień miesiąca to " . $dateService->getDay(new \DateTime()));
 
-        return $this->render("Auction/index.html.twig", ["auctions" => $auctions]);
+        return $this->render("Auction/index.html.twig", ["auctions" => $auctions]); // określenie gdzie mamy zostać przeniesieni
+                                                                                    // oraz określamy co przenosimy w tym przypadku 
+                                                                                   //zmienna $auction , która ma wszystkie aukcje
     }
 
     /**

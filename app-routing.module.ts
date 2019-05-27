@@ -1,3 +1,5 @@
+//Tu znajdują się wszystkie Routes do poszczególnych podstron
+
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {Router, RouterModule, Routes} from '@angular/router';
@@ -7,8 +9,8 @@ import {StatystykiComponent} from './statystyki/statystyki.component';
 import {UstawieniaComponent} from './ustawienia/ustawienia.component';
 import {AddproduktComponent} from './dodaj/addprodukt/addprodukt.component';
 
-const routes: Routes = [
-  {path: 'home' , component: HomeComponent},
+const routes: Routes = [ // Tutaj mamy Routes , które umożliwiają nam wywołanie danej metody w klasie
+  {path: 'home' , component: HomeComponent}, 
   {path: 'dodaj' , component: DodajComponent,
     children: [
       {path: 'addprodukt' , component: AddproduktComponent},

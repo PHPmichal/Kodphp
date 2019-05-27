@@ -4,9 +4,9 @@ namespace tests\AppBundle\Service;
 
 use AppBundle\Service\DateService;
 
-class TestDateService extends \PHPUnit_Framework_TestCase
+class TestDateService extends \PHPUnit_Framework_TestCase //do testów wykorzystujemy phpunit
 {
-    public function testGetDay()
+    public function testGetDay()//sprawdzamy czy prawidłowo zwracany jest dzień z daty serwisu
     {
         $dateService = new DateService();
 

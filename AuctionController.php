@@ -1,5 +1,5 @@
 <?php
-//Jest to nasz kontroler auckcji odpowiadający za początkową witryne,szczegóły aukcji
+//Jest to nasz kontroler auckcji odpowiadający za początkową witryne,szczegóły aukcji widoczny tylko dla nie zalogownych userów
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Auction;
@@ -42,7 +42,7 @@ class AuctionController extends Controller
      *
      * @return Response
      */
-    public function detailsAction(Auction $auction)
+    public function detailsAction(Auction $auction) // wyświetlenie szczegółów aukcji dla userów nie zalogowanych
     {
         if ($auction->getStatus() === Auction::STATUS_FINISHED) {
             return $this->render("Auction/finished.html.twig", ["auction" => $auction]);

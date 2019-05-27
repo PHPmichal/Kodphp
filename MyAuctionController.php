@@ -1,5 +1,7 @@
 <?php
 
+//Tylko dla zalogowanych userów
+
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Auction;
@@ -22,16 +24,17 @@ class MyAuctionController extends Controller
      *
      * @return Response
      */
-    public function indexAction()
+    public function indexAction() // wyświetlenie wszystkich aukcji zalogowanego usera
     {
-        $this->denyAccessUnlessGranted("ROLE_USER");
+        $this->denyAccessUnlessGranted("ROLE_USER"); //sprawdzamy jaki user jest zalogowany i czy jest zalogowany
 
         $entityManager = $this->getDoctrine()->getManager();
         $auctions = $entityManager
             ->getRepository(Auction::class)
             ->findMyOrdered($this->getUser());
 
-        return $this->render("MyAuction/index.html.twig", ["auctions" => $auctions]);
+        return $this->render("MyAuction/index.html.twig", ["auctions" => $auctions]); // przesłanie wszystkich aukcji utworzonych przez
+                                                                                        //przez zalogowanego usera
     }
 
     /**
@@ -41,26 +44,27 @@ class MyAuctionController extends Controller
      *
      * @return Response
      */
-    public function detailsAction(Auction $auction)
+    public function detailsAction(Auction $auction) // wykorzystanie parakonwentera do pobrania w tle zawartości aukcji wynikającej z routingu
+        // Szczegóły danej aukcji tylko usera , który je stworzył , tu wyświetlamy tylko szczegóły naszej aukcji
     {
-        $this->denyAccessUnlessGranted("ROLE_USER");
+        $this->denyAccessUnlessGranted("ROLE_USER");//sprawdzamy czy jest zalogowany uesr
 
-        if ($auction->getStatus() === Auction::STATUS_FINISHED) {
+        if ($auction->getStatus() === Auction::STATUS_FINISHED) {  //sprawdzamy jaki status posiada nasza aukcja
             return $this->render("MyAuction/finished.html.twig", ["auction" => $auction]);
         }
 
-        $deleteForm = $this->createFormBuilder()
+        $deleteForm = $this->createFormBuilder() // utworzenie formularza (przycisk) do usuwania naszej aukcji
             ->setAction($this->generateUrl("my_auction_delete", ["id" => $auction->getId()]))
             ->setMethod(Request::METHOD_DELETE)
             ->add("submit", SubmitType::class, ["label" => "Delete"])
             ->getForm();
 
-        $finishForm = $this->createFormBuilder()
+        $finishForm = $this->createFormBuilder() // dodanie formularza(przycisk) do zmiany statusu aukcji z active na finish
             ->setAction($this->generateUrl("my_auction_finish", ["id" => $auction->getId()]))
             ->add("submit", SubmitType::class, ["label" => "Finish"])
             ->getForm();
 
-        return $this->render(
+        return $this->render( // przesłanie szczegółów aukcji oraz formularzy do twiga
             "MyAuction/details.html.twig",
             [
                 "auction" => $auction,
@@ -77,38 +81,38 @@ class MyAuctionController extends Controller
      *
      * @return RedirectResponse|Response
      */
-    public function addAction(Request $request)
+    public function addAction(Request $request)// dodawanie naszej nowej aukcji
     {
-        $this->denyAccessUnlessGranted("ROLE_USER");
+        $this->denyAccessUnlessGranted("ROLE_USER");//sprawdzamy jaki user jest zalogowany 
 
         $auction = new Auction();
 
-        $form = $this->createForm(AuctionType::class, $auction);
+        $form = $this->createForm(AuctionType::class, $auction); //odwołanie się do formularza 
 
-        if ($request->isMethod("post")) {
-            $form->handleRequest($request);
+        if ($request->isMethod("post")) { // jeśli jestemy w danej metodzie to
+            $form->handleRequest($request); // pobieramy zmienne i wstawiamy do formularza
 
-            if ($auction->getStartingPrice() >= $auction->getPrice()) {
-                $form->get("startingPrice")->addError(new FormError("the price of the caller must be less than buy now"));
+            if ($auction->getStartingPrice() >= $auction->getPrice()) { //sprawdzamy czy cena wywoławcza nie była wyższa od ceny kup teraz
+                $form->get("startingPrice")->addError(new FormError("the price of the caller must be less than buy now"))
             }
 
-            if ($form->isValid()) {
+            if ($form->isValid()) { //walidacja formularza zabespiecza aby nie był pusty i miał określoną długość znaków
                 $auction
                     ->setStatus(Auction::STATUS_ACTIVE)
                     ->setOwner($this->getUser());
 
                 $entityManager = $this->getDoctrine()->getManager();
                 $entityManager->persist($auction);
-                $entityManager->flush();
+                $entityManager->flush(); // jeśli jest ok to zapisujemy do MySql
 
                 $this->get("event_dispatcher")->dispatch(Events::AUCTION_ADD, new AuctionEvent($auction));
 
-                $this->addFlash("success", "Auction {$auction->getTitle()} is added.");
+                $this->addFlash("success", "Auction {$auction->getTitle()} is added."); // info dla user , że wszystko jest dobrze
 
                 return $this->redirectToRoute("my_auction_details", ["id" => $auction->getId()]);
             }
 
-            $this->addFlash("error", "an error occured!");
+            $this->addFlash("error", "an error occured!"); // jeśli wystąpi jakiś błąd to przesyłamy go do twiga
         }
 
         return $this->render("MyAuction/add.html.twig", ["form" => $form->createView()]);
@@ -122,26 +126,27 @@ class MyAuctionController extends Controller
      *
      * @return RedirectResponse|Response
      */
-    public function editAction(Request $request, Auction $auction)
+    public function editAction(Request $request, Auction $auction)//tutaj edytujemy naszą aukcje 
     {
         $this->denyAccessUnlessGranted("ROLE_USER");
 
-        if ($this->getUser() !== $auction->getOwner()) {
+        if ($this->getUser() !== $auction->getOwner()) { // sprawdzamy czy dany user jest właścicielem aukcji
             throw new AccessDeniedException();
         }
 
-        $form = $this->createForm(AuctionType::class, $auction);
+        $form = $this->createForm(AuctionType::class, $auction);//za pomocą parakonwentera po route pobieramy dane naszej aukcji
+                                                                //oraz jest wstawiamy do formularza
 
         if ($request->isMethod("post")) {
             $form->handleRequest($request);
 
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($auction);
-            $entityManager->flush();
+            $entityManager->flush(); // update danych
 
             $this->get("event_dispatcher")->dispatch(Events::AUCTION_EDIT, new AuctionEvent($auction));
 
-            $this->addFlash("success", "Auction {$auction->getTitle()} is realised");
+            $this->addFlash("success", "Auction {$auction->getTitle()} is realised");//info o tym ,ze jest wszystko dobrze
 
             return $this->redirectToRoute("my_auction_details", ["id" => $auction->getId()]);
         }
@@ -156,7 +161,7 @@ class MyAuctionController extends Controller
      *
      * @return RedirectResponse
      */
-    public function deleteAction(Auction $auction)
+    public function deleteAction(Auction $auction) // usuwanie aukcji wybranej aukcji po id z route za pomoca parakonwentera
     {
         $this->denyAccessUnlessGranted("ROLE_USER");
 
@@ -166,7 +171,7 @@ class MyAuctionController extends Controller
 
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->remove($auction);
-        $entityManager->flush();
+        $entityManager->flush(); // usuwamy aukcje
 
         $this->get("event_dispatcher")->dispatch(Events::AUCTION_DELETE, new AuctionEvent($auction));
 
@@ -182,7 +187,7 @@ class MyAuctionController extends Controller
      *
      * @return RedirectResponse
      */
-    public function finishAction(Auction $auction)
+    public function finishAction(Auction $auction) // zmiana statusu naszej aukcji z active na finish
     {
         $this->denyAccessUnlessGranted("ROLE_USER");
 
@@ -191,12 +196,12 @@ class MyAuctionController extends Controller
         }
 
         $auction
-            ->setExpiresAt(new \DateTime())
+            ->setExpiresAt(new \DateTime()) // aktualizacja czasu nasze aukcji 
             ->setStatus(Auction::STATUS_FINISHED);
 
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($auction);
-        $entityManager->flush();
+        $entityManager->flush(); // update tylko wartości status aukcji z active na finish
 
         $this->get("event_dispatcher")->dispatch(Events::AUCTION_FINISH, new AuctionEvent($auction));
 
